@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Last Time on Earth - User Set Reverse Timer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #082d2a;
+    overflow: hidden;
+    padding: 20px;
+  }
+  .background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+  }
+  .background-animation video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .container {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(21, 53, 51, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 0 35px #161f1e88;
+    width: 90vw;
+    max-width: 600px;
+    user-select: none;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px #141a19;
+  }
+  p.subtitle {
+    margin-top: 0;
+    font-size: 1.15rem;
+    color: #122e28cc;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    margin-bottom: 2rem;
+  }
+  form#set-timer-form {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  form#set-timer-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    color: #005943ee;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  form#set-timer-form input[type="number"] {
+    margin-top: 6px;
+    padding: 8px 12px;
+    width: 70px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1.3rem;
+    font-family: 'Orbitron', monospace;
+    text-align: center;
+    background: #1dd8d2;
+    color: #6e1313;
+    box-shadow: 0 0 8px #01d2c099 inset;
+    transition: box-shadow 0.3s ease;
+  }
+  form#set-timer-form input[type="number"]:focus {
+    outline: none;
+    box-shadow: 0 0 16px #7b2828;
+  }
+  form#set-timer-form button {
+    align-self: flex-end;
+    padding: 12px 25px;
+    border-radius: 20px;
+    border: none;
+    background: #42ada6;
+    color: #0d0d12;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 0 25px #284b48aa;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  form#set-timer-form button:disabled {
+    background: #04d4d4;
+    color: #1a9f9f;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  form#set-timer-form button:hover:not(:disabled) {
+    background-color: #0c7575;
+    color: #29c9c3;
+  }
+  .timer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 15px;
+  }
+  .time-segment {
+    background: rgba(248, 192, 192, 0.2);
+    padding: 20px 25px;
+    border-radius: 15px;
+    min-width: 80px;
+    box-shadow: 0 0 15px #21936daa;
+    transition: transform 0.3s ease;
+  }
+  .time-segment:hover {
+    transform: scale(1.1);
+  }
+  .number {
+    font-size: 3.5rem;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 10px #07beac;
+  }
+  .label {
+    font-size: 1rem;
+    margin-top: 6px;
+    text-transform: uppercase;
+    color: #07c29dee;
+    letter-spacing: 0.12em;
+  }
+  .buttons-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+  }
+  .buttons-container button {
+    padding: 12px 30px;
+    border-radius: 25px;
+    border: none;
+    background: #0e5d58;
+    color: #2e2e3e;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 0 25px #143734aa;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-width: 120px;
+  }
+  .buttons-container button:hover {
+    background-color: #772828;
+    color: #c7b2b2;
+  }
+  .buttons-container button:disabled {
+    background: #004040;
+    color: #00dede;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  @media (max-width: 450px) {
+    .number {
+      font-size: 2.5rem;
+    }
+    .time-segment {
+      padding: 12px 15px;
+      min-width: 60px;
+    }
+    h1 {
+      font-size: 1.8rem;
+    }
+    form#set-timer-form input[type="number"] {
+      width: 55px;
+      font-size: 1.15rem;
+    }
+    form#set-timer-form label {
+      font-size: 0.75rem;
+    }
+    .buttons-container {
+      flex-direction: column;
+      gap: 15px;
+    }
+    .buttons-container button {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="background-animation">
+    <video autoplay muted loop>
+      <source src="270315_medium.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+  <div class="container" role="main" aria-label="Last time on Earth user set reverse timer countdown">
+    <h1>Last Time on Earth</h1>
+    <p class="subtitle">Set time left until end of the world</p>
+
+    <form id="set-timer-form" aria-label="Set your countdown time">
+      <label for="days-input">Days
+        <input type="number" id="days-input" min="0" max="99999" value="0" />
+      </label>
+      <label for="hours-input">Hours
+        <input type="number" id="hours-input" min="0" max="23" value="0" />
+      </label>
+      <label for="minutes-input">Minutes
+        <input type="number" id="minutes-input" min="0" max="59" value="0" />
+      </label>
+      <label for="seconds-input">Seconds
+        <input type="number" id="seconds-input" min="0" max="59" value="0" />
+      </label>
+      <button type="submit" id="start-btn" aria-label="Start countdown timer">Start</button>
+    </form>
+
+    <div class="timer" aria-live="polite" aria-atomic="true" aria-relevant="all" aria-label="Countdown timer display">
+      <div class="time-segment" aria-label="Days">
+        <div class="number" id="days">0</div>
+        <div class="label">Days</div>
+      </div>
+      <div class="time-segment" aria-label="Hours">
+        <div class="number" id="hours">00</div>
+        <div class="label">Hours</div>
+      </div>
+      <div class="time-segment" aria-label="Minutes">
+        <div class="number" id="minutes">00</div>
+        <div class="label">Minutes</div>
+      </div>
+      <div class="time-segment" aria-label="Seconds">
+        <div class="number" id="seconds">00</div>
+        <div class="label">Seconds</div>
+      </div>
+    </div>
+
+    <div class="buttons-container">
+      <button id="reset-btn" aria-label="Reset timer" disabled>Reset</button>
+    </div>
+  </div>
+
+<script>
+  const daysInput = document.getElementById('days-input');
+  const hoursInput = document.getElementById('hours-input');
+  const minutesInput = document.getElementById('minutes-input');
+  const secondsInput = document.getElementById('seconds-input');
+
+  const startBtn = document.getElementById('start-btn');
+  const resetBtn = document.getElementById('reset-btn');
+
+  const daysEl = document.getElementById('days');
+  const hoursEl = document.getElementById('hours');
+  const minutesEl = document.getElementById('minutes');
+  const secondsEl = document.getElementById('seconds');
+
+  let totalSeconds = 0;
+  let timerInterval = null;
+
+  function pad(num) {
+    return num.toString().padStart(2, '0');
+  }
+
+  function updateTimerDisplay(secondsLeft) {
+    if (secondsLeft < 0) secondsLeft = 0;
+    const days = Math.floor(secondsLeft / (24 * 3600));
+    const hours = Math.floor((secondsLeft % (24 * 3600)) / 3600);
+    const minutes = Math.floor((secondsLeft % 3600) / 60);
+    const seconds = secondsLeft % 60;
+
+    daysEl.textContent = days;
+    hoursEl.textContent = pad(hours);
+    minutesEl.textContent = pad(minutes);
+    secondsEl.textContent = pad(seconds);
+  }
+
+  function validateInputs() {
+    const d = parseInt(daysInput.value, 10);
+    const h = parseInt(hoursInput.value, 10);
+    const m = parseInt(minutesInput.value, 10);
+    const s = parseInt(secondsInput.value, 10);
+
+    if (
+      Number.isNaN(d) || d < 0 || d > 99999 ||
+      Number.isNaN(h) || h < 0 || h > 23 ||
+      Number.isNaN(m) || m < 0 || m > 59 ||
+      Number.isNaN(s) || s < 0 || s > 59
+    ) {
+      return false;
+    }
+    // At least one value > 0
+    if (d === 0 && h === 0 && m === 0 && s === 0) return false;
+    return true;
+  }
+
+  function disableInputFields(disable) {
+    daysInput.disabled = disable;
+    hoursInput.disabled = disable;
+    minutesInput.disabled = disable;
+    secondsInput.disabled = disable;
+  }
+
+  function startTimer() {
+    if (!validateInputs()) {
+      alert("Please enter valid time values (non-negative and at least one non-zero).");
+      return;
+    }
+
+    const d = parseInt(daysInput.value, 10);
+    const h = parseInt(hoursInput.value, 10);
+    const m = parseInt(minutesInput.value, 10);
+    const s = parseInt(secondsInput.value, 10);
+
+    totalSeconds = d * 86400 + h * 3600 + m * 60 + s;
+    if (totalSeconds === 0) {
+      alert("Please enter a time greater than zero.");
+      return;
+    }
+
+    updateTimerDisplay(totalSeconds);
+    disableInputFields(true);
+    startBtn.disabled = true;
+    resetBtn.disabled = false;
+
+    timerInterval = setInterval(() => {
+      totalSeconds--;
+      if (totalSeconds < 0) {
+        clearInterval(timerInterval);
+        alert("The countdown has ended.");
+        resetBtn.disabled = false;
+        return;
+      }
+      updateTimerDisplay(totalSeconds);
+    }, 1000);
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    totalSeconds = 0;
+    updateTimerDisplay(0);
+    disableInputFields(false);
+    startBtn.disabled = false;
+    resetBtn.disabled = true;
+
+    // Reset input values to zero
+    daysInput.value = "0";
+    hoursInput.value = "0";
+    minutesInput.value = "0";
+    secondsInput.value = "0";
+  }
+
+  // Prevent form from submitting normally
+  document.getElementById('set-timer-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    startTimer();
+  });
+
+  // Reset button event
+  resetBtn.addEventListener('click', resetTimer);
+
+  // Initialize display on page load
+  updateTimerDisplay(0);
+</script>
+</body>
+</html>
